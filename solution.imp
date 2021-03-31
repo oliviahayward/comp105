@@ -1,0 +1,270 @@
+;;;;;;;;;;;;;;;;;;; COMP 105 IMPCORE ASSIGNMENT ;;;;;;;;;;;;;;;
+;; Olivia Hayward
+;; 2/9/2021
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;  Exercise DD
+
+
+;; (double-digit n) takes an integer less than 20,000 and returns a 
+;; positive integer where each digit appears twice in succession
+
+;; laws:
+;;   (double-digit d) == (10 * d) + d
+;;   (double-digit (10 * m) + d) == (100 * (double-digit (m))) + ((10 * d)
+;;                                  + d)
+;; proof system: decimal system
+
+(define double-digit (n)
+    (if (<= n 9)
+        (+ (* 10 n) n)
+        (+ (* 100 (double-digit (/ n 10))) (+ (* 10 (mod n 10)) (mod n 10)))))
+
+        (check-expect (double-digit 9) 99)
+        (check-expect (double-digit 123) 112233)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;  Exercise C
+
+
+;; (count-and-parse n c) when given a number n and a count, will check if
+;; the last bit of the binary representation is even or odd and if odd, 
+;; increase the count. It will recursively call itself until it is on the 
+;; final bit.
+
+;; laws:
+;;   (count-and-parse 0) == 0
+;;   (count-and-parse ((2 * m) + b)) == (b mod 2), if 1, c++
+;;                                     (count-and-parse m c)
+
+(define count-and-parse (n c)
+    (if (<= n 2)
+        (if (= (mod n 2) 0)
+            c
+            (+ c 1))
+        (if (= (mod n 2) 0)
+            (count-and-parse (/ n 2) c)
+            (count-and-parse (/ n 2) (+ c 1)))))
+
+        (check-expect (count-and-parse 0 0) 0)
+        (check-expect (count-and-parse 12 1) 3)
+        (check-expect (count-and-parse 127 0) 7)
+
+
+;; (population-count n) when given a nonnegative ingteger, returns the 
+;; number of 1 bits in the binary representation of that integer
+
+;; laws:
+;;   (population-count 0) == 0
+;;   (population-count (2 * m) + b) == (if (b mod 2), x = x + 1), 
+;;                                     (population-count m) 
+;; proof system: binary
+;;
+
+(define population-count (n)
+    (if (= n 0)
+        0
+        (count-and-parse n 0)))
+
+        (check-expect (population-count 0) 0)
+        (check-expect (population-count 12) 2)
+        (check-expect (population-count 127) 7)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;  Exercise 8
+
+;; (power x n) returns x to the power of n, where n is a natural number
+
+;; laws:
+;;   (power x 0) == 1
+;;   (power x (+ (* 2 m) 0)) == (* (power x m) (power x m))
+;;   (power x (+ (* 2 m) 1)) == (* x (power x m) (power x m))
+
+(define power (x n)
+    (if (= n 0)
+        1
+        (if (= (mod n 2) 0)
+            (* (power x (/ n 2)) (power x (/ n 2)))
+            (* x (* (power x (/ n 2)) (power x (/ n 2)))))))
+
+        (check-expect (power 1738 0) 1)
+        (check-expect (power 3 2) 9)
+        (check-expect (power 3 3) 27)
+
+;; (counter-caller n b c) when given a number n, a number b (the binary 
+;; number being created), and a counter c, checks to see if the least 
+;; significant binary digit is odd or even. It stores a 0 or 1 to b and 
+;; calls the power function on 10 and the current count in order to move 
+;; the number to the correct decimal place.
+
+;; laws:
+;;   (counter-caller 1 0 0) == 1
+;;   (counter-caller ((2 * m) + b) 0 0) == (b mod 2), if odd,
+;;                          (counter-caller m (b + (power 10 c)) (c + 1))
+;;                          if even, (counter-caller m b (c + 1))
+
+(define counter-caller (n b c)
+    (if (= n 1)
+        (+ b (power 10 c))
+        (if (= 1 (mod n 2))
+            (counter-caller (/ n 2) (+ b (power 10 c)) (+ 1 c)) 
+            (counter-caller (/ n 2) b (+ 1 c)))))
+
+        (check-expect (counter-caller 1 0 0) 1)
+        (check-expect (counter-caller 2 0 0) 10)
+        (check-expect (counter-caller 12 0 0) 1100)
+        (check-expect (counter-caller 9 0 0) 1001)
+
+
+;; (binary n) changes the representation of a number from its decimal form 
+;;  to its binary form
+
+;; laws:
+;;   (binary 0) == 0
+;;   (binary (2 * m) + b) == (counter-caller ((2 * m) + b) 0 0) 
+;; 
+;; proof system: binary
+
+(define binary (n)
+    (if (= n 0)
+        0
+        (counter-caller n 0 0)))
+
+        (check-expect (binary 0) 0)
+        (check-expect (binary 12) 1100)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;  Exercise 2
+
+
+;; (sigma m n) returns the sum of the series m through n, with each 
+;; element increasing in value by 1
+
+;; laws:
+;;   (sigma m m) == m
+;;   (sigma m n) == (n - m) (m + (sigma (m + 1) n)), where n > m
+;; proof system: peano
+
+(define sigma (m n)
+    (if (= m n)
+        m
+        (+ m (sigma (+ m 1) n))))
+
+        (check-expect (sigma 9 9) 9)
+        (check-expect (sigma 1 3) 6)
+        (check-expect (sigma 5 10) 45)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;  Exercise 5
+
+;; (divisor-increase n c) performs n mod c, while increasing c by 1
+;;  until c = n
+
+;; laws:
+;;   (divisor-increase n n) == 1
+;;   (divisor-increase n c) == n mod c, where c < n
+;;                             if n mod c == 0, return 0
+;;                             else (divisor-increase n (c + 1))
+;; c = 2 in the beginning since every number is divisible by 1
+
+(define divisor-increase (n c)
+    (if (= n c)
+        1
+        (if (= (mod n c) 0)
+            0
+            (divisor-increase n (+ c 1)))))
+
+        (check-expect (divisor-increase 5 2) 1)
+        (check-expect (divisor-increase 4 2) 0)
+
+;; (prime? n) checks if n is a prime number
+
+;; laws:
+;;   (prime? 0) == 0
+;;   (prime? n) == (divisor-increase n 2), where n > 2
+;; proof system: peano
+
+(define prime? (n)
+    (if (< n 2)
+        1
+        (divisor-increase n 2)))
+
+        (check-expect (prime? 5) 1)
+        (check-expect (prime? 4) 0)   
+
+;; (find-prime n x c) searches through every product of 6x - 1 and 6x + 1, 
+;; increasing x by 1 each time. When it finds a prime number it increases 
+;; c by 1 until c = n 
+;; 
+
+;; laws:
+;;   (find-prime n x c) == if (prime? (6x - 1)), (c = c + 1)
+;;                         if (prime? (6x + 1)), (c = c + 1), (x = x + 1)
+;;                         else, (x = x + 1)
+;;                         (find-prime n x c)
+;;   
+
+(define find-prime (n x c)
+    (if (= n c)
+        (begin
+            (if (prime? (- (* 6 x) 1))
+                (- (* 6 x) 1)
+                (if (prime? (+ (* 6 x) 1))
+                    (+ (* 6 x) 1)
+                    (find-prime n (+ x 1)))))
+        (begin
+            (if (= n (+ 1 c))
+                (if (prime? (- (* 6 x) 1))
+                    (if (prime? (+ (* 6 x) 1))
+                        (+ (* 6 x) 1)
+                        (find-prime n (+ x 1) (+ 1 c)))
+                    (if (prime? (+ (* 6 x) 1))
+                        (find-prime n (+ x 1) (+ 1 c))   
+                        (find-prime n (+ x 1) c)))
+                (if (prime? (- (* 6 x) 1))
+                    (if (prime? (+ (* 6 x) 1))
+                        (find-prime n (+ x 1) (+ 2 c))
+                        (find-prime n (+ x 1) (+ 1 c)))
+                    (if (prime? (+ (* 6 x) 1))
+                        (find-prime n (+ x 1) (+ 1 c))   
+                        (find-prime n (+ x 1) c)))))))
+
+        (check-expect (find-prime 4 1 3) 7)
+        (check-expect (find-prime 25 1 3) 97)
+
+;; (nthprime n) returns the nth prime number
+
+;; laws:
+;;   (nthprime 1) == 2
+;;   (nthprime 2) == 3
+;;   (nthprime n) == (find-prime n 1 3)
+;;
+;; find-prime always takes 1 and 3 as arguments since it would be pointless
+;; to check whether -1 or 1 were prime numbers and 2 and 3 are the only
+;; prime numbers that do not follow the (6x - 1) or (6x + 1) rule.
+
+(define nthprime (n)
+    (if (= n 1)
+        2
+        (if (= n 2)
+            3
+            (find-prime n 1 3))))
+        
+        (check-expect (nthprime 1) 2)
+        (check-expect (nthprime 2) 3)
+        (check-expect (nthprime 3) 5)
+        (check-expect (nthprime 4) 7)
+        (check-expect (nthprime 5) 11)
+        (check-expect (nthprime 6) 13)

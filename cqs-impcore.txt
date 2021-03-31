@@ -1,0 +1,96 @@
+Reading comprehension for Impcore
+=================================
+*Download* and edit this file, `cqs-impcore.txt`, to answer the
+questions below. (It will render strangely in Canvas, which is oddly
+stuck in the 20th century and cannot render Unicode characters.)
+
+Once you've edited the file, submit it by uploading it to the homework
+server and running command `submit105-cqs`.  (To get the command, you
+will need to run `use comp105`.)
+
+
+Please read pages 17--26 in *Programming Languages: Build, Prove, and Compare*.
+
+1.  What is the value of the following Impcore expression?
+
+        (if (> 3 5) 17 99)
+
+	0
+
+2.  Which of the following best describes the syntactic structure of
+    Impcore?
+
+    (a)   An expression can be made with any definition as one of its parts
+    (b)   A definition can be made with any expression as one of its parts
+    (c)   Both of the above
+    (d)   None of the above
+	
+	A
+
+3.  Does the following Impcore test pass? Please answer "yes" or "no."
+
+        (check-expect (+ 1 2 3) 6)
+	
+	no
+
+    Assuming `x` is bound to a global variable, does the following
+    Impcore test pass? Again, please answer "yes" or "no."
+
+        (check-expect (set x 1) 1)
+	
+	yes
+
+In *Seven Lessons in Program Design*, on Canvas, read the
+Introduction and Lesson 1.
+
+4.  I show you a recursive function `f` that takes one argument, 
+    a natural number `n`.  The structure of `n`, and therefore the
+    internal structure of `f`, are based on the Peano proof system from
+    the handout.
+
+    (a) What are the different ways `n` can be formed?
+    (b) When `f` is given `n`, what code do you expect `f` to use to
+        determine how `n` was formed?
+    (c) For which values of `n` do you expect `f` to make a recursive call?
+    (d) When a recursive call is made, what value is passed as argument?
+
+	a) `n` can be 0 (the Peano base case) or `n` can be formed using
+	   another natural number m (n = m + 1).
+	b) I expect `f` to use something like:
+		if n = 0, it is using base case
+		else n was formed using a recursive call
+	c) I expect `f` to make a recursive call if the value of `n` is
+	   greater than 0.
+	d) When a recursive call is made, `m` + 1 is passed into `f` as
+	   the new `m` until you reach `n`.
+
+Read the expectations about contracts in the course coding guidelines on Canvas.
+
+5.  Suppose I write a contract for a `power` function that says, "this
+    function multiplies $x$ by itself $n$ times."  According to our
+    expectations, is this a good contract or a bad contract?
+    Please answer "good" or "bad."
+
+	bad
+
+6.  In *Seven Lessons in Program Design*, just before the end of
+    Lesson 1, you will find a section on "Complete process examples."
+    This section suggests that the `factorial` function---but not the
+    `power` function---could be submitted without a contract.
+    
+    (a) Why would it be OK to submit the `factorial` function without
+        a contract?  For an idea, look at the "Exemplary" column in
+        the "Documentation" section of the general coding rubric.
+    (b) Why doesn't the same argument apply to the `power` function?
+        For an idea, check the design lesson.
+
+	a) It would be OK to submit the `factorial` function without
+	   a contract because its name is a mathematical process that
+	   only needs one argument.
+	b) Unlike the factorial function, `power` could mean
+	   several things. The name itself is not specific enough
+	   to the mathematical process its computing. Furthermore,
+	   the `power` function needs some documentation as it has 2
+	   arguments and cannot take in a negative `n` variable.
+
+You're all done!  Submit using `submit105-cqs`.
